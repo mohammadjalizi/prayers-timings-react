@@ -2,21 +2,25 @@ import React from 'react'
 
 const Maincontext = () => {
   return (
-    <div className=' flex justify-center items-center '>
-        
-
-<div>
-<h2>   4.23 |سبتمبر2024 9</h2>
-<h1>مکه المکرمه </h1>
-</div>
-
-<div>
-<h2>    متبقي حتى صلاة العصر</h2>
-<h1> 00:10:20 </h1>
-</div>
-
-
+<div className=' '>
+        <div className='  flex justify-between gap-44 '>
+            
+    
+    <div>
+    <h2>   4.23 |سبتمبر2024 9</h2>
+    <h1>مکه المکرمه </h1>
     </div>
+    
+    <div>
+    <h2>    متبقي حتى صلاة العصر</h2>
+    <h1> 00:10:20 </h1>
+    </div>
+    
+    
+        </div>
+
+        <hr className=' border-white  opacity-5 my-2 ' />
+</div>
   )
 }
 
