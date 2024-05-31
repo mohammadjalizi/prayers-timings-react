@@ -1,4 +1,5 @@
 import React from 'react'
+import Prayer from './Prayer'
 
 const Maincontext = () => {
   return (
@@ -20,6 +21,10 @@ const Maincontext = () => {
         </div>
 
         <hr className=' border-white  opacity-5 my-2 ' />
+
+      
+<Prayer/>
+
 </div>
   )
 }
