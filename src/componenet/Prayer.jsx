@@ -1,13 +1,12 @@
 import React from 'react'
 
-const Prayer = ({name,time}) => {
+const Prayer = ({name,time,image}) => {
   return (
     <div className=' '>
         
 
 <div className='   w-[345px] h-[456px] text-black bg-white ' >
-<img src="src/assets/fajr-prayer (2).png" alt="" />
-
+<img src={image} alt="" />
 <div className=''>
     <h1>{name}</h1>
     
