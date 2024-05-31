@@ -1,7 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Prayer from './Prayer'
 import axios from 'axios'
 const Maincontext = () => {
+
+  const getTimungs=async()=>{
+const data= await axios.get("https://api.aladhan.com/v1/timingsByCity/31-05-2024?city=Dubai&country=United+Arab+Emirates&method=8")
+
+  }
+useEffect(()=>{
+
+console.log('HELOOO')
+},[])
 
   const[timings,Settimings]=useState({
 
