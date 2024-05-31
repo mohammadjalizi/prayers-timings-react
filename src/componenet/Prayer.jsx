@@ -8,7 +8,7 @@ const Prayer = ({name,time,image}) => {
 <div className='   w-[345px] h-[456px] text-black bg-white ' >
 <img src={image} alt="" />
 <div className=''>
-    <h1>{name}</h1>
+    <h1 className=' my-4 '>{name}</h1>
     
     <p className=' text-center my-3 text-3xl '>{time}</p>
     
