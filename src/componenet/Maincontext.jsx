@@ -1,63 +1,143 @@
 import React, { useEffect, useState } from 'react'
 import Prayer from './Prayer'
 import axios from 'axios'
+import moment from 'moment'
+import "moment/dist/locale/ar-dz";
+moment.locale("ar")
 const Maincontext = () => {
-
-  const[timings,Settimings]=useState({
-
-
-    Fajr: "04:20",
+  const [nextPrayerIndex, setNextPrayerIndex] = useState(2);
+	const [timings, setTimings] = useState({
+		Fajr: "04:20",
 		Dhuhr: "11:50",
 		Asr: "15:18",
 		Sunset: "18:03",
 		Isha: "19:33",
+	});
 
-  })
-const[selectedcity,Setselected]=useState("الریاض")
+	const [remainingTime, setRemainingTime] = useState("");
+
+	const [selectedCity, setSelectedCity] = useState({
+		displayName: "مكة المكرمة",
+		apiName: "Makkah al Mukarramah",
+	});
+
+	const [today, setToday] = useState("");
+
+	const avilableCities = [
+		{
+			displayName: "مكة المكرمة",
+			apiName: "Makkah al Mukarramah",
+		},
+		{
+			displayName: "الرياض",
+			apiName: "Riyadh",
+		},
+		{
+			displayName: "الدمام",
+			apiName: "Dammam",
+		},
+	];
+
+	const prayersArray = [
+		{ key: "Fajr", displayName: "الفجر" },
+		{ key: "Dhuhr", displayName: "الظهر" },
+		{ key: "Asr", displayName: "العصر" },
+		{ key: "Sunset", displayName: "المغرب" },
+		{ key: "Isha", displayName: "العشاء" },
+	];
+	const getTimings = async () => {
+		console.log("calling the api");
+		const response = await axios.get(
+			`https://api.aladhan.com/v1/timingsByCity?country=SA&city=${selectedCity.apiName}`
+		);
+		setTimings(response.data.data.timings);
+	};
+	useEffect(() => {
+		getTimings();
+	}, [selectedCity]);
+
+	useEffect(() => {
+		let interval = setInterval(() => {
+			console.log("calling timer");
+			setupCountdownTimer();
+		}, 1000);
+
+		const t = moment();
+		setToday(t.format("MMM Do YYYY | h:mm"));
+
+		return () => {
+			clearInterval(interval);
+		};
+	}, [timings]);
+
+	// const data = await axios.get(
+	// 	"https://api.aladhan.com/v1/timingsByCity?country=SA&city=Riyadh"
+	// );
+
+	const setupCountdownTimer = () => {
+		const momentNow = moment();
+
+		let prayerIndex = 2;
+
+		if (
+			momentNow.isAfter(moment(timings["Fajr"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Dhuhr"], "hh:mm"))
+		) {
+			prayerIndex = 1;
+		} else if (
+			momentNow.isAfter(moment(timings["Dhuhr"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Asr"], "hh:mm"))
+		) {
+			prayerIndex = 2;
+		} else if (
+			momentNow.isAfter(moment(timings["Asr"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Sunset"], "hh:mm"))
+		) {
+			prayerIndex = 3;
+		} else if (
+			momentNow.isAfter(moment(timings["Sunset"], "hh:mm")) &&
+			momentNow.isBefore(moment(timings["Isha"], "hh:mm"))
+		) {
+			prayerIndex = 4;
+		} else {
+			prayerIndex = 0;
+		}
+
+		setNextPrayerIndex(prayerIndex);
+
+		// now after knowing what the next prayer is, we can setup the countdown timer by getting the prayer's time
+		const nextPrayerObject = prayersArray[prayerIndex];
+		const nextPrayerTime = timings[nextPrayerObject.key];
+		const nextPrayerTimeMoment = moment(nextPrayerTime, "hh:mm");
+
+		let remainingTime = moment(nextPrayerTime, "hh:mm").diff(momentNow);
+
+		if (remainingTime < 0) {
+			const midnightDiff = moment("23:59:59", "hh:mm:ss").diff(momentNow);
+			const fajrToMidnightDiff = nextPrayerTimeMoment.diff(
+				moment("00:00:00", "hh:mm:ss")
+			);
+
+			const totalDiffernce = midnightDiff + fajrToMidnightDiff;
+
+			remainingTime = totalDiffernce;
+		}
 
 
+		const durationRemainingTime = moment.duration(remainingTime);
 
+		setRemainingTime(
+			`${durationRemainingTime.seconds()} : ${durationRemainingTime.minutes()} : ${durationRemainingTime.hours()}`
+		);
 
-const avilableCities = [
-  {
-    displayName: "مكة المكرمة",
-    apiName: "Makkah al Mukarramah",
-  },
-  {
-    displayName: "الرياض",
-    apiName: "Riyadh",
-  },
-  {
-    displayName: "الدمام",
-    apiName: "Dammam",
-  },
-];
-
-
-  const getTimings=async()=>{
-const data= await axios.get("https://api.aladhan.com/v1/timingsByCity/31-05-2024?city=Dubai&country=United+Arab+Emirates&method=8");
-
-Settimings(Response.data.data.timings)
-console.log(data.data.data.timings)
-  }
-useEffect(()=>{
-
-  getTimings()
-
-},[])
-
-
-const handelcity=(event)=>{
-
-  const Cityopject=avilableCities.find((city)=>{
-
-    return city.apiName==event.target.value
-  })
-
-console.log("the new value",event.target.value)
-Setselected(Cityopject)
-
-}
+	};
+	const handleCity = (event) => {
+		const cityObject = avilableCities.find((city) => {
+			return city.apiName == event.target.value;
+		});
+		console.log("the new value is ", event.target.value);
+		setSelectedCity(cityObject);
+	};
 
   return (
 <div className=' '>
@@ -65,13 +145,16 @@ Setselected(Cityopject)
             
     
     <div>
-    <h2>   4.23 |سبتمبر2024 9</h2>
-    <h1 className=' text-3xl '> {selectedcity.displayName}</h1>
+    <h2>{today}</h2>
+						<h1 className=' text-3xl '>{selectedCity.displayName}</h1>
     </div>
     
     <div>
-    <h2>    متبقي حتى صلاة العصر</h2>
-    <h1 className=' text-3xl '> 00:10:20 </h1>
+    <h2>
+							متبقي حتى صلاة{" "}
+							{prayersArray[nextPrayerIndex].displayName}
+						</h2>
+						<h1 className=' text-3xl ' >{remainingTime}</h1>
     </div>
     
     
@@ -82,26 +165,50 @@ Setselected(Cityopject)
       
 <div className='flex  gap-6 flex-wrap '>
 
-<Prayer name="الفجر" time={timings.Fajr}   image="src/assets/fajr-prayer (2).png" />
-
-<Prayer name="الظهر" time={timings.Dhuhr}  image="src/assets/dhhr-prayer-mosque.png" />
-
-<Prayer name="العصر" time={timings.Asr}  image="src/assets/asr-prayer-mosque.png" />
-
-<Prayer name="المغرب" time={timings.Isha}  image="src/assets/night-prayer-mosque.png" />
+<Prayer
+					name="الفجر"
+					time={timings.Fajr}
+					image="https://wepik.com/api/image/ai/9a07baa7-b49b-4f6b-99fb-2d2b908800c2"
+				/>
+				<Prayer
+					name="الظهر"
+					time={timings.Dhuhr}
+					image="https://wepik.com/api/image/ai/9a07bb45-6a42-4145-b6aa-2470408a2921"
+				/>
+				<Prayer
+					name="العصر"
+					time={timings.Asr}
+					image="https://wepik.com/api/image/ai/9a07bb90-1edc-410f-a29a-d260a7751acf"
+				/>
+				<Prayer
+					name="المغرب"
+					time={timings.Sunset}
+					image="https://wepik.com/api/image/ai/9a07bbe3-4dd1-43b4-942e-1b2597d4e1b5"
+				/>
+				<Prayer
+					name="العشاء"
+					time={timings.Isha}
+					image="https://wepik.com/api/image/ai/9a07bc25-1200-4873-8743-1c370e9eff4d"
+				/>
 </div>
 
 
 {/* select */}
 <form class="max-w-sm mx-auto  ">
   <label for="countries" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an option</label>
-  <select onChange={handelcity} id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+  <select onChange={handleCity} id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
 
 {avilableCities.map((city)=>{
 
 return(
-  <option value={city.apiName} selected>
-    {city.displayName}
+  <option
+  value={city.apiName}
+  key={city.apiName}
+>
+  {city.displayName}
+  
+
+
 
 
   </option>
