@@ -23,7 +23,16 @@ const Maincontext = () => {
         <hr className=' border-white  opacity-5 my-2 ' />
 
       
-<Prayer/>
+<div className='flex  gap-6 flex-wrap '>
+
+<Prayer name="الفجر" time="04:10" />
+
+<Prayer name="الظهر" time="12:13"/>
+
+<Prayer name="العصر" time="03:45"/>
+
+<Prayer name="المغرب" time="07:44"/>
+</div>
 
 </div>
   )
