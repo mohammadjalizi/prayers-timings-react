@@ -3,13 +3,14 @@ import Prayer from './Prayer'
 import axios from 'axios'
 const Maincontext = () => {
 
-  const getTimungs=async()=>{
+  const getTimings=async()=>{
 const data= await axios.get("https://api.aladhan.com/v1/timingsByCity/31-05-2024?city=Dubai&country=United+Arab+Emirates&method=8")
-
+console.log(data.data.data.timings)
   }
 useEffect(()=>{
 
-console.log('HELOOO')
+  getTimings()
+
 },[])
 
   const[timings,Settimings]=useState({
@@ -45,13 +46,13 @@ console.log('HELOOO')
       
 <div className='flex  gap-6 flex-wrap '>
 
-<Prayer name="الفجر" time="04:10"   image="src/assets/fajr-prayer (2).png" />
+<Prayer name="الفجر" time={timings.Fajr}   image="src/assets/fajr-prayer (2).png" />
 
-<Prayer name="الظهر" time="12:13"  image="src/assets/dhhr-prayer-mosque.png" />
+<Prayer name="الظهر" time={timings.Dhuhr}  image="src/assets/dhhr-prayer-mosque.png" />
 
-<Prayer name="العصر" time="03:45"  image="src/assets/asr-prayer-mosque.png" />
+<Prayer name="العصر" time={timings.Asr}  image="src/assets/asr-prayer-mosque.png" />
 
-<Prayer name="المغرب" time="07:44"  image="src/assets/night-prayer-mosque.png" />
+<Prayer name="المغرب" time={timings.Isha}  image="src/assets/night-prayer-mosque.png" />
 </div>
 
 
